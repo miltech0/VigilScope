@@ -1,0 +1,40 @@
+# Virtual environments and Python caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Build and release output
+build/
+dist/
+*.egg-info/
+
+# Runtime data and exports
+*.db
+*.db-shm
+*.db-wal
+*.log
+*.csv
+*.jsonl
+exports/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+
+# IDE and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini

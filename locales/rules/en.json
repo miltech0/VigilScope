@@ -1,0 +1,17 @@
+{
+  "PROC-001": {"title": "Office application launched a command or script interpreter", "description": "An Office application was observed launching a command or script interpreter.", "category": "Process Chain"},
+  "PROC-002": {"title": "Browser or PDF reader launched a command interpreter", "description": "A command or script interpreter was observed under a browser or PDF reader.", "category": "Process Chain"},
+  "PROC-003": {"title": "Process launched from a temporary or Downloads folder", "description": "An executable was launched from a temporary directory or the user's Downloads folder.", "category": "Execution Location"},
+  "PROC-004": {"title": "PowerShell encoded command indicator", "description": "A common argument associated with encoded PowerShell commands was observed.", "category": "Command Interpreter"},
+  "PROC-005": {"title": "Command interpreter launched by an unusual parent", "description": "A command or script interpreter was launched outside the common expected parent list.", "category": "Process Chain"},
+  "PROC-006": {"title": "Many child processes in a short period", "description": "At least 15 new child processes were observed under the same parent PID within 30 seconds.", "category": "Process Volume"},
+  "PROC-007": {"title": "New process connected to a public endpoint shortly after start", "description": "A newly observed process identity connected to a public remote endpoint within 30 seconds.", "category": "Process and Network Correlation"},
+  "PROC-008": {"title": "Process from a temporary location connected to a public endpoint", "description": "A process launched from Temp or Downloads connected to a public remote endpoint.", "category": "Process and Network Correlation"},
+  "PROC-009": {"title": "Process from a temporary location opened a listening port", "description": "A process launched from Temp or Downloads opened a local listening port.", "category": "Process and Network Correlation"},
+  "NET-101": {"title": "Many unique public endpoints in a short period", "description": "The same process connected to at least 20 unique public endpoints within 60 seconds.", "category": "Network Volume"},
+  "NET-102": {"title": "New process started listening on all interfaces", "description": "A new process started listening on 0.0.0.0 or :: within 30 seconds.", "category": "Listener Correlation"},
+  "NET-103": {"title": "New listening port not marked as expected", "description": "A listening port not explicitly marked as expected by the user opened.", "category": "Listener Baseline"},
+  "NET-104": {"title": "Unexpected high-numbered listening port", "description": "A process not marked as expected started listening on port 49152 or higher.", "category": "Listener Baseline"},
+  "CORR-001": {"title": "Process, public connection, and new listener sequence", "description": "The same process identity started, connected to a public endpoint, and opened a listening port within 60 seconds.", "category": "Multi-stage Correlation"},
+  "CORR-002": {"title": "Parent launched multiple interpreters followed by a public connection", "description": "Multiple script interpreters and related public endpoint behavior were observed under the same parent.", "category": "Multi-stage Correlation"}
+}

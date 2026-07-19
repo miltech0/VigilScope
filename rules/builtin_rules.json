@@ -1,0 +1,954 @@
+{
+  "format_version": 1,
+  "rules": [
+    {
+      "id": "PROC-001",
+      "title": "Office application launched a command or script interpreter",
+      "description": "An Office application was observed launching a command or script interpreter.",
+      "enabled": true,
+      "severity": "high",
+      "category": "Process Chain",
+      "event_types": [
+        "process_started"
+      ],
+      "conditions": {
+        "all": [
+          {
+            "field": "parent_process_name",
+            "operator": "in",
+            "value": [
+              "winword.exe",
+              "excel.exe",
+              "powerpnt.exe",
+              "outlook.exe"
+            ]
+          },
+          {
+            "field": "process_name",
+            "operator": "in",
+            "value": [
+              "powershell.exe",
+              "pwsh.exe",
+              "cmd.exe",
+              "wscript.exe",
+              "cscript.exe",
+              "mshta.exe"
+            ]
+          }
+        ]
+      },
+      "group_by": [
+        "pid",
+        "process_create_time"
+      ],
+      "deduplication": {
+        "fields": [
+          "pid",
+          "process_create_time"
+        ],
+        "reopen_closed": false
+      },
+      "mitre_attack": [
+        {
+          "tactic_id": "TA0002",
+          "tactic_name": "Execution",
+          "technique_id": "T1059",
+          "technique_name": "Command and Scripting Interpreter"
+        }
+      ],
+      "false_positives": [
+        "Enterprise add-ins and legitimate Office automation."
+      ],
+      "investigation_steps": [
+        "Verify the parent-child chain.",
+        "Review the masked command line and executable path."
+      ],
+      "tags": [
+        "process",
+        "office",
+        "interpreter"
+      ],
+      "version": "1.0",
+      "title_key": "rules.PROC-001.title",
+      "description_key": "rules.PROC-001.description",
+      "category_key": "rules.PROC-001.category"
+    },
+    {
+      "id": "PROC-002",
+      "title": "Browser or PDF reader launched a command interpreter",
+      "description": "A command or script interpreter was observed under a browser or PDF reader.",
+      "enabled": true,
+      "severity": "medium",
+      "category": "Process Chain",
+      "event_types": [
+        "process_started"
+      ],
+      "conditions": {
+        "all": [
+          {
+            "field": "parent_process_name",
+            "operator": "in",
+            "value": [
+              "chrome.exe",
+              "msedge.exe",
+              "firefox.exe",
+              "acrord32.exe",
+              "acrobat.exe"
+            ]
+          },
+          {
+            "field": "process_name",
+            "operator": "in",
+            "value": [
+              "powershell.exe",
+              "pwsh.exe",
+              "cmd.exe",
+              "wscript.exe",
+              "cscript.exe",
+              "mshta.exe"
+            ]
+          }
+        ]
+      },
+      "group_by": [
+        "pid",
+        "process_create_time"
+      ],
+      "deduplication": {
+        "fields": [
+          "pid",
+          "process_create_time"
+        ]
+      },
+      "mitre_attack": [
+        {
+          "tactic_id": "TA0002",
+          "tactic_name": "Execution",
+          "technique_id": "T1059",
+          "technique_name": "Command and Scripting Interpreter"
+        }
+      ],
+      "false_positives": [
+        "Legitimate browser helpers, PDF automation, and developer tools."
+      ],
+      "investigation_steps": [
+        "Verify parent and child executable paths.",
+        "Review related network events."
+      ],
+      "tags": [
+        "process",
+        "browser",
+        "interpreter"
+      ],
+      "version": "1.0",
+      "title_key": "rules.PROC-002.title",
+      "description_key": "rules.PROC-002.description",
+      "category_key": "rules.PROC-002.category"
+    },
+    {
+      "id": "PROC-003",
+      "title": "Process launched from a temporary or Downloads folder",
+      "description": "An executable was launched from a temporary directory or the user's Downloads folder.",
+      "enabled": true,
+      "severity": "low",
+      "category": "Execution Location",
+      "event_types": [
+        "process_started"
+      ],
+      "conditions": {
+        "any": [
+          {
+            "field": "executable_path",
+            "operator": "contains",
+            "value": "\\AppData\\Local\\Temp\\"
+          },
+          {
+            "field": "executable_path",
+            "operator": "contains",
+            "value": "\\Windows\\Temp\\"
+          },
+          {
+            "field": "executable_path",
+            "operator": "contains",
+            "value": "\\Downloads\\"
+          }
+        ]
+      },
+      "group_by": [
+        "pid",
+        "process_create_time"
+      ],
+      "deduplication": {
+        "fields": [
+          "pid",
+          "process_create_time"
+        ]
+      },
+      "mitre_attack": [],
+      "false_positives": [
+        "Installers and legitimate portable applications downloaded by the user."
+      ],
+      "investigation_steps": [
+        "Verify the file source and signature with operating-system tools."
+      ],
+      "tags": [
+        "process",
+        "temp",
+        "downloads"
+      ],
+      "version": "1.0",
+      "title_key": "rules.PROC-003.title",
+      "description_key": "rules.PROC-003.description",
+      "category_key": "rules.PROC-003.category"
+    },
+    {
+      "id": "PROC-004",
+      "title": "PowerShell encoded command indicator",
+      "description": "A common argument associated with encoded PowerShell commands was observed.",
+      "enabled": true,
+      "severity": "medium",
+      "category": "Command Interpreter",
+      "event_types": [
+        "process_started"
+      ],
+      "conditions": {
+        "all": [
+          {
+            "field": "process_name",
+            "operator": "in",
+            "value": [
+              "powershell.exe",
+              "pwsh.exe"
+            ]
+          },
+          {
+            "any": [
+              {
+                "field": "masked_command_line",
+                "operator": "regex",
+                "value": "(^|\\s)-(enc|encodedcommand)(\\s|:|$)"
+              },
+              {
+                "field": "masked_command_line",
+                "operator": "regex",
+                "value": "(^|\\s)/enc(\\s|:|$)"
+              }
+            ]
+          }
+        ]
+      },
+      "group_by": [
+        "pid",
+        "process_create_time"
+      ],
+      "deduplication": {
+        "fields": [
+          "pid",
+          "process_create_time"
+        ]
+      },
+      "mitre_attack": [
+        {
+          "tactic_id": "TA0002",
+          "tactic_name": "Execution",
+          "technique_id": "T1059.001",
+          "technique_name": "PowerShell"
+        }
+      ],
+      "false_positives": [
+        "Legitimate administration and software-deployment scripts may use encoded commands."
+      ],
+      "investigation_steps": [
+        "Verify the command source and parent process.",
+        "Review related network and listener events."
+      ],
+      "tags": [
+        "powershell",
+        "encoded"
+      ],
+      "version": "1.0",
+      "title_key": "rules.PROC-004.title",
+      "description_key": "rules.PROC-004.description",
+      "category_key": "rules.PROC-004.category"
+    },
+    {
+      "id": "PROC-005",
+      "title": "Command interpreter launched by an unusual parent",
+      "description": "A command or script interpreter was launched outside the common expected parent list.",
+      "enabled": true,
+      "severity": "low",
+      "category": "Process Chain",
+      "event_types": [
+        "process_started"
+      ],
+      "conditions": {
+        "all": [
+          {
+            "field": "process_name",
+            "operator": "in",
+            "value": [
+              "powershell.exe",
+              "pwsh.exe",
+              "cmd.exe",
+              "wscript.exe",
+              "cscript.exe",
+              "mshta.exe"
+            ]
+          },
+          {
+            "field": "parent_process_name",
+            "operator": "not_in",
+            "value": [
+              "explorer.exe",
+              "windows terminal.exe",
+              "windowsterminal.exe",
+              "code.exe",
+              "devenv.exe",
+              "services.exe",
+              "taskeng.exe",
+              "taskhostw.exe",
+              "powershell.exe",
+              "pwsh.exe",
+              "cmd.exe"
+            ]
+          }
+        ]
+      },
+      "group_by": [
+        "pid",
+        "process_create_time"
+      ],
+      "deduplication": {
+        "fields": [
+          "pid",
+          "process_create_time"
+        ]
+      },
+      "mitre_attack": [
+        {
+          "tactic_id": "TA0002",
+          "tactic_name": "Execution",
+          "technique_id": "T1059",
+          "technique_name": "Command and Scripting Interpreter"
+        }
+      ],
+      "false_positives": [
+        "Enterprise agents, schedulers, and application-specific automation."
+      ],
+      "investigation_steps": [
+        "Verify the parent executable path and command line."
+      ],
+      "tags": [
+        "process",
+        "interpreter",
+        "parent"
+      ],
+      "version": "1.0",
+      "title_key": "rules.PROC-005.title",
+      "description_key": "rules.PROC-005.description",
+      "category_key": "rules.PROC-005.category"
+    },
+    {
+      "id": "PROC-006",
+      "title": "Many child processes in a short period",
+      "description": "At least 15 new child processes were observed under the same parent PID within 30 seconds.",
+      "enabled": true,
+      "severity": "medium",
+      "category": "Process Volume",
+      "event_types": [
+        "process_started"
+      ],
+      "conditions": {},
+      "correlation": {
+        "type": "count",
+        "within_seconds": 30,
+        "minimum_count": 15
+      },
+      "group_by": [
+        "parent_pid"
+      ],
+      "deduplication": {
+        "fields": [
+          "parent_pid"
+        ],
+        "bucket_seconds": 30
+      },
+      "mitre_attack": [],
+      "false_positives": [
+        "Installers, build systems, and developer tools."
+      ],
+      "investigation_steps": [
+        "Review the child process list and parent executable path."
+      ],
+      "tags": [
+        "process",
+        "burst"
+      ],
+      "version": "1.0",
+      "title_key": "rules.PROC-006.title",
+      "description_key": "rules.PROC-006.description",
+      "category_key": "rules.PROC-006.category"
+    },
+    {
+      "id": "PROC-007",
+      "title": "New process connected to a public endpoint shortly after start",
+      "description": "A newly observed process identity connected to a public remote endpoint within 30 seconds.",
+      "enabled": true,
+      "severity": "low",
+      "category": "Process and Network Correlation",
+      "event_types": [
+        "process_started",
+        "remote_endpoint_new"
+      ],
+      "conditions": {},
+      "correlation": {
+        "type": "followed_by",
+        "within_seconds": 30,
+        "ordered": true,
+        "sequence": [
+          {
+            "event_type": "process_started"
+          },
+          {
+            "event_type": "remote_endpoint_new",
+            "conditions": {
+              "field": "address_scope",
+              "operator": "equals",
+              "value": "public"
+            }
+          }
+        ]
+      },
+      "group_by": [
+        "pid",
+        "process_create_time"
+      ],
+      "deduplication": {
+        "fields": [
+          "pid",
+          "process_create_time",
+          "remote_ip",
+          "remote_port"
+        ]
+      },
+      "mitre_attack": [],
+      "false_positives": [
+        "Browsers, updaters, and cloud clients."
+      ],
+      "investigation_steps": [
+        "Verify the endpoint, process path, and parent chain."
+      ],
+      "tags": [
+        "process",
+        "network"
+      ],
+      "version": "1.0",
+      "title_key": "rules.PROC-007.title",
+      "description_key": "rules.PROC-007.description",
+      "category_key": "rules.PROC-007.category"
+    },
+    {
+      "id": "PROC-008",
+      "title": "Process from a temporary location connected to a public endpoint",
+      "description": "A process launched from Temp or Downloads connected to a public remote endpoint.",
+      "enabled": true,
+      "severity": "medium",
+      "category": "Process and Network Correlation",
+      "event_types": [
+        "process_started",
+        "remote_endpoint_new"
+      ],
+      "conditions": {},
+      "correlation": {
+        "type": "sequence",
+        "within_seconds": 300,
+        "ordered": true,
+        "sequence": [
+          {
+            "event_type": "process_started",
+            "conditions": {
+              "any": [
+                {
+                  "field": "executable_path",
+                  "operator": "contains",
+                  "value": "\\Temp\\"
+                },
+                {
+                  "field": "executable_path",
+                  "operator": "contains",
+                  "value": "\\Downloads\\"
+                }
+              ]
+            }
+          },
+          {
+            "event_type": "remote_endpoint_new",
+            "conditions": {
+              "field": "address_scope",
+              "operator": "equals",
+              "value": "public"
+            }
+          }
+        ]
+      },
+      "group_by": [
+        "pid",
+        "process_create_time"
+      ],
+      "deduplication": {
+        "fields": [
+          "pid",
+          "process_create_time",
+          "remote_ip",
+          "remote_port"
+        ]
+      },
+      "mitre_attack": [],
+      "false_positives": [
+        "Legitimate installers and portable applications."
+      ],
+      "investigation_steps": [
+        "Verify the file source and remote endpoint."
+      ],
+      "tags": [
+        "temp",
+        "network"
+      ],
+      "version": "1.0",
+      "title_key": "rules.PROC-008.title",
+      "description_key": "rules.PROC-008.description",
+      "category_key": "rules.PROC-008.category"
+    },
+    {
+      "id": "PROC-009",
+      "title": "Process from a temporary location opened a listening port",
+      "description": "A process launched from Temp or Downloads opened a local listening port.",
+      "enabled": true,
+      "severity": "high",
+      "category": "Process and Network Correlation",
+      "event_types": [
+        "process_started",
+        "listener_started"
+      ],
+      "conditions": {},
+      "correlation": {
+        "type": "sequence",
+        "within_seconds": 300,
+        "ordered": true,
+        "sequence": [
+          {
+            "event_type": "process_started",
+            "conditions": {
+              "any": [
+                {
+                  "field": "executable_path",
+                  "operator": "contains",
+                  "value": "\\Temp\\"
+                },
+                {
+                  "field": "executable_path",
+                  "operator": "contains",
+                  "value": "\\Downloads\\"
+                }
+              ]
+            }
+          },
+          {
+            "event_type": "listener_started"
+          }
+        ]
+      },
+      "group_by": [
+        "pid",
+        "process_create_time"
+      ],
+      "deduplication": {
+        "fields": [
+          "pid",
+          "process_create_time",
+          "local_ip",
+          "local_port"
+        ]
+      },
+      "mitre_attack": [],
+      "false_positives": [
+        "Development servers and legitimate tools running from a temporary directory."
+      ],
+      "investigation_steps": [
+        "Verify the listening scope and process executable."
+      ],
+      "tags": [
+        "temp",
+        "listener"
+      ],
+      "version": "1.0",
+      "title_key": "rules.PROC-009.title",
+      "description_key": "rules.PROC-009.description",
+      "category_key": "rules.PROC-009.category"
+    },
+    {
+      "id": "NET-101",
+      "title": "Many unique public endpoints in a short period",
+      "description": "The same process connected to at least 20 unique public endpoints within 60 seconds.",
+      "enabled": true,
+      "severity": "medium",
+      "category": "Network Volume",
+      "event_types": [
+        "remote_endpoint_new",
+        "remote_endpoint_reappeared"
+      ],
+      "conditions": {
+        "field": "address_scope",
+        "operator": "equals",
+        "value": "public"
+      },
+      "correlation": {
+        "type": "distinct_count",
+        "within_seconds": 60,
+        "minimum_count": 20,
+        "distinct_field": "remote_ip"
+      },
+      "group_by": [
+        "pid",
+        "process_create_time"
+      ],
+      "deduplication": {
+        "fields": [
+          "pid",
+          "process_create_time"
+        ],
+        "bucket_seconds": 60
+      },
+      "mitre_attack": [],
+      "false_positives": [
+        "Browsers, game clients, updaters, and applications using CDNs."
+      ],
+      "investigation_steps": [
+        "Compare the endpoint list with the application's expected network behavior."
+      ],
+      "tags": [
+        "network",
+        "volume"
+      ],
+      "version": "1.0",
+      "title_key": "rules.NET-101.title",
+      "description_key": "rules.NET-101.description",
+      "category_key": "rules.NET-101.category"
+    },
+    {
+      "id": "NET-102",
+      "title": "New process started listening on all interfaces",
+      "description": "A new process started listening on 0.0.0.0 or :: within 30 seconds.",
+      "enabled": true,
+      "severity": "medium",
+      "category": "Listener Correlation",
+      "event_types": [
+        "process_started",
+        "listener_started"
+      ],
+      "conditions": {},
+      "correlation": {
+        "type": "sequence",
+        "within_seconds": 30,
+        "ordered": true,
+        "sequence": [
+          {
+            "event_type": "process_started"
+          },
+          {
+            "event_type": "listener_started",
+            "conditions": {
+              "field": "local_ip",
+              "operator": "in",
+              "value": [
+                "0.0.0.0",
+                "::"
+              ]
+            }
+          }
+        ]
+      },
+      "group_by": [
+        "pid",
+        "process_create_time"
+      ],
+      "deduplication": {
+        "fields": [
+          "pid",
+          "process_create_time",
+          "local_port"
+        ]
+      },
+      "mitre_attack": [],
+      "false_positives": [
+        "Legitimate local servers and development tools."
+      ],
+      "investigation_steps": [
+        "Observe and verify the port, executable path, and firewall scope."
+      ],
+      "tags": [
+        "listener",
+        "all_interfaces"
+      ],
+      "version": "1.0",
+      "title_key": "rules.NET-102.title",
+      "description_key": "rules.NET-102.description",
+      "category_key": "rules.NET-102.category"
+    },
+    {
+      "id": "NET-103",
+      "title": "New listening port not marked as expected",
+      "description": "A listening port not explicitly marked as expected by the user opened.",
+      "enabled": true,
+      "severity": "low",
+      "category": "Listener Baseline",
+      "event_types": [
+        "listener_started"
+      ],
+      "conditions": {
+        "field": "additional_data.is_expected",
+        "operator": "equals",
+        "value": false
+      },
+      "group_by": [
+        "protocol",
+        "local_ip",
+        "local_port",
+        "pid",
+        "process_create_time"
+      ],
+      "deduplication": {
+        "fields": [
+          "protocol",
+          "local_ip",
+          "local_port",
+          "pid",
+          "process_create_time"
+        ]
+      },
+      "mitre_attack": [],
+      "false_positives": [
+        "Newly installed or first-used legitimate server applications."
+      ],
+      "investigation_steps": [
+        "Verify the process opening the port and its listening scope."
+      ],
+      "tags": [
+        "listener",
+        "baseline"
+      ],
+      "version": "1.0",
+      "title_key": "rules.NET-103.title",
+      "description_key": "rules.NET-103.description",
+      "category_key": "rules.NET-103.category"
+    },
+    {
+      "id": "NET-104",
+      "title": "Unexpected high-numbered listening port",
+      "description": "A process not marked as expected started listening on port 49152 or higher.",
+      "enabled": true,
+      "severity": "low",
+      "category": "Listener Baseline",
+      "event_types": [
+        "listener_started"
+      ],
+      "conditions": {
+        "all": [
+          {
+            "field": "local_port",
+            "operator": "greater_or_equal",
+            "value": 49152
+          },
+          {
+            "field": "additional_data.is_expected",
+            "operator": "equals",
+            "value": false
+          }
+        ]
+      },
+      "group_by": [
+        "protocol",
+        "local_ip",
+        "local_port",
+        "pid",
+        "process_create_time"
+      ],
+      "deduplication": {
+        "fields": [
+          "protocol",
+          "local_ip",
+          "local_port",
+          "pid",
+          "process_create_time"
+        ]
+      },
+      "mitre_attack": [],
+      "false_positives": [
+        "Many legitimate applications use dynamic high-numbered ports."
+      ],
+      "investigation_steps": [
+        "Verify the process network role and whether the port is expected."
+      ],
+      "tags": [
+        "listener",
+        "high_port"
+      ],
+      "version": "1.0",
+      "title_key": "rules.NET-104.title",
+      "description_key": "rules.NET-104.description",
+      "category_key": "rules.NET-104.category"
+    },
+    {
+      "id": "CORR-001",
+      "title": "Process, public connection, and new listener sequence",
+      "description": "The same process identity started, connected to a public endpoint, and opened a listening port within 60 seconds.",
+      "enabled": true,
+      "severity": "high",
+      "category": "Multi-stage Correlation",
+      "event_types": [
+        "process_started",
+        "remote_endpoint_new",
+        "listener_started"
+      ],
+      "conditions": {},
+      "correlation": {
+        "type": "sequence",
+        "within_seconds": 60,
+        "ordered": true,
+        "sequence": [
+          {
+            "event_type": "process_started"
+          },
+          {
+            "event_type": "remote_endpoint_new",
+            "conditions": {
+              "field": "address_scope",
+              "operator": "equals",
+              "value": "public"
+            }
+          },
+          {
+            "event_type": "listener_started"
+          }
+        ]
+      },
+      "group_by": [
+        "pid",
+        "process_create_time"
+      ],
+      "deduplication": {
+        "fields": [
+          "pid",
+          "process_create_time"
+        ]
+      },
+      "mitre_attack": [],
+      "false_positives": [
+        "Legitimate applications may contact an external service and open a local service on first run."
+      ],
+      "investigation_steps": [
+        "Review the full evidence timeline, executable path, and endpoints together."
+      ],
+      "tags": [
+        "correlation",
+        "process",
+        "network",
+        "listener"
+      ],
+      "version": "1.0",
+      "title_key": "rules.CORR-001.title",
+      "description_key": "rules.CORR-001.description",
+      "category_key": "rules.CORR-001.category"
+    },
+    {
+      "id": "CORR-002",
+      "title": "Parent launched multiple interpreters followed by a public connection",
+      "description": "Multiple script interpreters and related public endpoint behavior were observed under the same parent.",
+      "enabled": true,
+      "severity": "high",
+      "category": "Multi-stage Correlation",
+      "event_types": [
+        "process_started",
+        "remote_endpoint_new"
+      ],
+      "conditions": {},
+      "correlation": {
+        "type": "sequence",
+        "within_seconds": 60,
+        "ordered": true,
+        "sequence": [
+          {
+            "event_type": "process_started",
+            "conditions": {
+              "field": "process_name",
+              "operator": "in",
+              "value": [
+                "powershell.exe",
+                "pwsh.exe",
+                "cmd.exe",
+                "wscript.exe",
+                "cscript.exe",
+                "mshta.exe"
+              ]
+            }
+          },
+          {
+            "event_type": "process_started",
+            "conditions": {
+              "field": "process_name",
+              "operator": "in",
+              "value": [
+                "powershell.exe",
+                "pwsh.exe",
+                "cmd.exe",
+                "wscript.exe",
+                "cscript.exe",
+                "mshta.exe"
+              ]
+            }
+          },
+          {
+            "event_type": "remote_endpoint_new",
+            "conditions": {
+              "field": "address_scope",
+              "operator": "equals",
+              "value": "public"
+            }
+          }
+        ]
+      },
+      "group_by": [
+        "parent_pid"
+      ],
+      "deduplication": {
+        "fields": [
+          "parent_pid"
+        ],
+        "bucket_seconds": 60
+      },
+      "mitre_attack": [
+        {
+          "tactic_id": "TA0002",
+          "tactic_name": "Execution",
+          "technique_id": "T1059",
+          "technique_name": "Command and Scripting Interpreter"
+        }
+      ],
+      "false_positives": [
+        "Automation, build, and management systems may launch multiple interpreters."
+      ],
+      "investigation_steps": [
+        "Verify the parent process, child command lines, and public endpoints."
+      ],
+      "tags": [
+        "correlation",
+        "interpreter",
+        "network"
+      ],
+      "version": "1.0",
+      "title_key": "rules.CORR-002.title",
+      "description_key": "rules.CORR-002.description",
+      "category_key": "rules.CORR-002.category"
+    }
+  ]
+}

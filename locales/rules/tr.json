@@ -1,0 +1,17 @@
+{
+  "PROC-001": {"title": "Office uygulaması komut veya betik yorumlayıcısı başlattı", "description": "Bir Office uygulamasının komut ya da betik yorumlayıcısı başlattığı gözlendi.", "category": "İşlem Zinciri"},
+  "PROC-002": {"title": "Tarayıcı veya PDF okuyucu komut yorumlayıcısı başlattı", "description": "Tarayıcı veya PDF okuyucu altında bir komut ya da betik yorumlayıcısı gözlendi.", "category": "İşlem Zinciri"},
+  "PROC-003": {"title": "Geçici veya İndirilenler klasöründen işlem başlatıldı", "description": "Bir çalıştırılabilir dosya geçici dizinden veya kullanıcının İndirilenler klasöründen başlatıldı.", "category": "Çalıştırma Konumu"},
+  "PROC-004": {"title": "PowerShell kodlanmış komut göstergesi", "description": "PowerShell komut satırında kodlanmış komutlarla ilişkili yaygın bir argüman gözlendi.", "category": "Komut Yorumlayıcısı"},
+  "PROC-005": {"title": "Komut yorumlayıcısı olağan dışı bir parent tarafından başlatıldı", "description": "Bir komut veya betik yorumlayıcısı yaygın beklenen parent listesinin dışında başlatıldı.", "category": "İşlem Zinciri"},
+  "PROC-006": {"title": "Kısa sürede çok sayıda alt işlem", "description": "Aynı parent PID altında 30 saniye içinde en az 15 yeni alt işlem gözlendi.", "category": "İşlem Hacmi"},
+  "PROC-007": {"title": "Yeni işlem kısa süre içinde public hedefe bağlandı", "description": "Yeni görülen bir işlem kimliği 30 saniye içinde public uzak hedefe bağlandı.", "category": "İşlem ve Ağ Korelasyonu"},
+  "PROC-008": {"title": "Geçici konumdaki işlem public hedefe bağlandı", "description": "Temp veya İndirilenler klasöründen başlayan bir işlem public uzak hedefe bağlandı.", "category": "İşlem ve Ağ Korelasyonu"},
+  "PROC-009": {"title": "Geçici konumdaki işlem dinleme portu açtı", "description": "Temp veya İndirilenler klasöründen başlayan bir işlem yerel dinleme portu açtı.", "category": "İşlem ve Ağ Korelasyonu"},
+  "NET-101": {"title": "Kısa sürede çok sayıda benzersiz public hedef", "description": "Aynı işlem 60 saniye içinde en az 20 benzersiz public hedefe bağlandı.", "category": "Ağ Hacmi"},
+  "NET-102": {"title": "Yeni işlem tüm arayüzlerde dinlemeye başladı", "description": "Yeni bir işlem 30 saniye içinde 0.0.0.0 veya :: üzerinde dinlemeye başladı.", "category": "Dinleme Korelasyonu"},
+  "NET-103": {"title": "Beklenen olarak işaretlenmemiş yeni dinleme portu", "description": "Kullanıcı tarafından beklenen olarak işaretlenmemiş bir dinleme portu açıldı.", "category": "Dinleme Baseline'ı"},
+  "NET-104": {"title": "Beklenmeyen yüksek numaralı dinleme portu", "description": "Beklenen olarak işaretlenmemiş bir işlem 49152 veya üzerindeki portta dinlemeye başladı.", "category": "Dinleme Baseline'ı"},
+  "CORR-001": {"title": "İşlem, public bağlantı ve yeni dinleyici zinciri", "description": "Aynı işlem kimliği başladı, public hedefe bağlandı ve 60 saniye içinde dinleme portu açtı.", "category": "Çok Aşamalı Korelasyon"},
+  "CORR-002": {"title": "Parent birden fazla yorumlayıcı başlattı ve public bağlantı görüldü", "description": "Aynı parent altında birden fazla betik yorumlayıcısı ve ilişkili public hedef davranışı gözlendi.", "category": "Çok Aşamalı Korelasyon"}
+}

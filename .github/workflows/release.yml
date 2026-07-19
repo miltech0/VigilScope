@@ -1,0 +1,88 @@
+name: Windows Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Windows x64
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          architecture: x64
+          cache: pip
+          cache-dependency-path: |
+            requirements-build.txt
+            requirements-dev.txt
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-build.txt
+          python -m pip install -r requirements-dev.txt
+
+      - name: Validate source
+        shell: pwsh
+        run: |
+          python -m pytest -q
+          python -m ruff check .
+          python -m bandit -r system_info main.py -q
+          python -m pip check
+          python main.py --check | Out-Null
+
+      - name: Build executable
+        shell: pwsh
+        run: ./scripts/build_windows.ps1 -Python python -SkipTests
+
+      - name: Create release archive
+        shell: pwsh
+        run: |
+          $version = (python main.py --version).Trim().Split()[-1]
+          $archiveRoot = "dist\VigilScope-windows-x64-$version"
+          New-Item -ItemType Directory -Force $archiveRoot | Out-Null
+          Copy-Item "dist\VigilScope.exe" $archiveRoot
+          Copy-Item "dist\VigilScope.exe.sha256" $archiveRoot
+          Copy-Item "README.md" $archiveRoot
+          Copy-Item "SECURITY.md" $archiveRoot
+          Compress-Archive -Path "$archiveRoot\*" -DestinationPath "dist\VigilScope-windows-x64-$version.zip" -Force
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: VigilScope-windows-x64
+          path: |
+            dist/VigilScope.exe
+            dist/VigilScope.exe.sha256
+            dist/VigilScope-windows-x64-*.zip
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Create GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $zip = Get-ChildItem "dist\VigilScope-windows-x64-*.zip" | Select-Object -First 1
+          gh release create "${{ github.ref_name }}" `
+            "dist\VigilScope.exe" `
+            "dist\VigilScope.exe.sha256" `
+            "$($zip.FullName)" `
+            --title "VigilScope ${{ github.ref_name }}" `
+            --generate-notes `
+            --verify-tag
+    permissions:
+      contents: write
